@@ -104,7 +104,7 @@ function drawLineAndArrow(group) {
         .stroke({ color: '#000', width: 2 });
 
     var newArrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`)
-        .move(lineEndX - arrowWidth / 2, lineEndY - arrowHeight / 2)
+        .move(lineEndX - arrowWidth, lineEndY - arrowHeight)
         .fill('#000');
 
     // If you need to reference these later, you can assign them to properties on the group
