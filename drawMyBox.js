@@ -92,9 +92,11 @@ function deleteLineAndArrow(group) {
 
 function drawLineAndArrow(group) {
     // Calculate start positions for line inside this function
-    const lineStartX = group.data.x + group.data.w;
-    const lineStartY = group.data.y + group.data.h/2;
-    const { lineEndX, lineEndY } = calculateLineEnd(group.data, lineStartX, lineStartY);
+    const { lineStartX, lineStartY, lineEndX, lineEndY } = calculateLineEnds(group.data);
+
+    // Calculate midpoint for orthogonal arrangement
+    const midPointX = (lineStartX + lineEndX) / 2; // or some other logic to determine the bend point
+    const midPointY = (lineStartY + lineEndY) / 2; // or some other logic to determine the bend point
 
     // Create a new line and arrow using the SVG.js methods
     var newLine = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
@@ -105,9 +107,11 @@ function drawLineAndArrow(group) {
     group.referencedArrow = newArrow;
 }
 
-function calculateLineEnd(data, lineStartX, lineStartY) {
+function calculateLineEnds(data) {
     let lineEndX;
     let lineEndY;
+    let lineStartX = data.x + data.w;
+    let lineStartY = data.y + data.h / 2;
 
     if (data.destGroup === null) {
         lineEndX = lineStartX + defaultLength;
@@ -123,7 +127,7 @@ function calculateLineEnd(data, lineStartX, lineStartY) {
         }
     }
 
-    return { lineEndX, lineEndY };
+    return { lineStartX, lineStartY, lineEndX, lineEndY };
 }
 
   // Function to save the updated positions to a file
