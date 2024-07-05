@@ -35,7 +35,8 @@ function startDrag(event, group) {
     // Get the initial mouse position
     var startX = event.clientX;
     var startY = event.clientY;
-
+    group.line.remove();
+    group.arrow.remove();
     // Get the initial position of the group
     var groupX = group.x();
     var groupY = group.y();
