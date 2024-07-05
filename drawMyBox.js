@@ -36,8 +36,8 @@ function startDrag(event, group) {
     // Get the initial mouse position
     var startX = event.clientX;
     var startY = event.clientY;
-    group.line.remove();
-    group.arrow.remove();
+    group.referencedLine.remove();
+    group.referencedArrow.remove();
     // Get the initial position of the group
     var groupX = group.x();
     var groupY = group.y();
@@ -47,6 +47,8 @@ function startDrag(event, group) {
         // Calculate the new position of the group
         var dx = event.clientX - startX;
         var dy = event.clientY - startY;
+        group.data.x = groupX + dx;
+        group.data.y = groupY + dy;
         group.move(groupX + dx, groupY + dy);
     }
 
@@ -55,6 +57,8 @@ function startDrag(event, group) {
         // Remove the event listeners
         window.removeEventListener('mousemove', drag);
         window.removeEventListener('mouseup', endDrag);
+
+        drawLineAndArrow(group)
 
         // Update the JSON object with the new position
         var id = group.attr('data-id');
@@ -66,7 +70,7 @@ function startDrag(event, group) {
             savePositionsToFile(groupsData);
         }
     }
-
+    
     // Add the event listeners
     window.addEventListener('mousemove', drag);
     window.addEventListener('mouseup', endDrag);
@@ -79,8 +83,13 @@ function drawLineAndArrow(group) {
     const lineStartY = group.data.y + group.data.h/2;
     const { lineEndX, lineEndY } = calculateLineEnd(group.data, lineStartX, lineStartY);
 
-    group.line = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
-    group.arrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX, lineEndY-arrowHeight).fill('#000');
+    // Create a new line and arrow using the SVG.js methods
+    var newLine = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
+    var newArrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX, lineEndY-arrowHeight).fill('#000');
+
+    // If you need to reference these later, you can assign them to properties on the group
+    group.referencedLine = newLine;
+    group.referencedArrow = newArrow;
 }
 
 function calculateLineEnd(data, lineStartX, lineStartY) {
