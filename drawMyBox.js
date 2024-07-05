@@ -91,7 +91,7 @@ function drawLineAndArrow(group) {
 
     // Create a new line and arrow using the SVG.js methods
     var newLine = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
-    var newArrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX, lineEndY-arrowHeight).fill('#000');
+    var newArrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX-arrowWidth, lineEndY-arrowHeight).fill('#000');
 
     // If you need to reference these later, you can assign them to properties on the group
     group.referencedLine = newLine;
