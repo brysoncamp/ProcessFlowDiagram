@@ -20,42 +20,14 @@ function createDraggableGroup(data, fillColor) {
     // Create rectangle and text for the step
     var rect = group.rect(data.w, data.h).attr({ fill: 'white', stroke: 'black' }).move(data.x, data.y);
     var text = group.text('Step').attr({stroke: 'black' }).move(data.x + 25, data.y + 20);
-   
-    // Draw an arrow from the rectangle
-    const lineStartX = data.x + data.w;
-    const lineStartY = data.y + data.h/2;
-    const { lineEndX, lineEndY } = calculateLineEnd(data, lineStartX, lineStartY, defaultLength);
+    drawLineAndArrow(group, data)
 
-    var line = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
-    var arrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX, lineEndY-arrowHeight).fill('#000');
-   
     // Add event listeners for dragging
     group.on('mousedown', function(event) {
         startDrag(event, group);
     });
    
     return group;
-}
-
-function calculateLineEnd(data, lineStartX, lineStartY, defaultLength) {
-    let lineEndX;
-    let lineEndY;
-
-    if (data.destGroup === null) {
-        lineEndX = lineStartX + defaultLength;
-        lineEndY = lineStartY;
-    } else {
-        const destGroupData = groupsData.groups.find(g => g.id === data.destGroup);
-        if (destGroupData) {
-            lineEndX = destGroupData.x;
-            lineEndY = destGroupData.y + destGroupData.h/2;
-        } else {
-            lineEndX = lineStartX + defaultLength;
-            lineEndY = lineStartY;
-        }
-    }
-
-    return { lineEndX, lineEndY };
 }
 
 // Function to start dragging
@@ -67,7 +39,7 @@ function startDrag(event, group) {
     // Get the initial position of the group
     var groupX = group.x();
     var groupY = group.y();
-
+    
     // Function to handle dragging (mousemove event)
     function drag(event) {
         // Calculate the new position of the group
@@ -97,7 +69,39 @@ function startDrag(event, group) {
     window.addEventListener('mousemove', drag);
     window.addEventListener('mouseup', endDrag);
 }
-  
+
+// Adjusted drawLineAndArrow function
+function drawLineAndArrow(group, data) {
+    // Calculate start positions for line inside this function
+    const lineStartX = data.x + data.w;
+    const lineStartY = data.y + data.h/2;
+    const { lineEndX, lineEndY } = calculateLineEnd(data, lineStartX, lineStartY);
+
+    group.line = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
+    group.arrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX, lineEndY-arrowHeight).fill('#000');
+}
+
+function calculateLineEnd(data, lineStartX, lineStartY) {
+    let lineEndX;
+    let lineEndY;
+
+    if (data.destGroup === null) {
+        lineEndX = lineStartX + defaultLength;
+        lineEndY = lineStartY;
+    } else {
+        const destGroupData = groupsData.groups.find(g => g.id === data.destGroup);
+        if (destGroupData) {
+            lineEndX = destGroupData.x;
+            lineEndY = destGroupData.y + destGroupData.h/2;
+        } else {
+            lineEndX = lineStartX + defaultLength;
+            lineEndY = lineStartY;
+        }
+    }
+
+    return { lineEndX, lineEndY };
+}
+
   // Function to save the updated positions to a file
   function savePositionsToFile(updatedData) {
       // Convert the JSON object to a string
