@@ -5,8 +5,8 @@ const defaultLength = 100;
 // Assume we have an initial JSON object with group positions and IDs
 var groupsData = {
     "groups": [
-      { "id": "group1", "x": 50, "y": 75, "w": 100, "h": 50, "destGroup": "group2" },
-      { "id": "group2", "x": 350, "y": 75, "w": 100, "h": 50, "destGroup": null }
+      { "id": "group1", "name": "Thickener 1", "x": 50, "y": 75, "w": 100, "h": 50, "destGroup": "group2" },
+      { "id": "group2", "name": "Thickener 2", "x": 350, "y": 75, "w": 100, "h": 50, "destGroup": null }
       // ... more groups
     ]
   };
@@ -19,7 +19,14 @@ function createDraggableGroup(data, fillColor) {
     
     // Create rectangle and text for the step
     group.rect = group.rect(data.w, data.h).attr({ fill: 'white', stroke: 'black' }).move(data.x, data.y);
-    group.text = group.text('Step').attr({stroke: 'black' }).move(data.x + 25, data.y + 20);
+    
+    // Create text for the step
+    group.text = group.text(data.name).attr({stroke: 'black' }).move(data.x + 25, data.y + 20);
+    
+    // Centering text within rectangle
+    var bbox = group.text.bbox();
+    group.text.move(data.x + (data.w - bbox.width) / 2, data.y + (data.h - bbox.height) / 2);
+
     group.data = data
     drawLineAndArrow(group)
 
