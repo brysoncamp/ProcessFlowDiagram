@@ -11,16 +11,17 @@ var groupsData = {
     ]
   };
 
-  var draw = SVG().addTo('#drawing').size('100%', '100%');
+var draw = SVG().addTo('#drawing').size('100%', '100%');
   
 // Function to create a draggable group with a rectangle, text, line, and arrow
 function createDraggableGroup(data, fillColor) {
     var group = draw.group().attr({ 'data-id': data.id });
     
     // Create rectangle and text for the step
-    var rect = group.rect(data.w, data.h).attr({ fill: 'white', stroke: 'black' }).move(data.x, data.y);
-    var text = group.text('Step').attr({stroke: 'black' }).move(data.x + 25, data.y + 20);
-    drawLineAndArrow(group, data)
+    group.rect = group.rect(data.w, data.h).attr({ fill: 'white', stroke: 'black' }).move(data.x, data.y);
+    group.text = group.text('Step').attr({stroke: 'black' }).move(data.x + 25, data.y + 20);
+    group.data = data
+    drawLineAndArrow(group)
 
     // Add event listeners for dragging
     group.on('mousedown', function(event) {
@@ -72,11 +73,11 @@ function startDrag(event, group) {
 }
 
 // Adjusted drawLineAndArrow function
-function drawLineAndArrow(group, data) {
+function drawLineAndArrow(group) {
     // Calculate start positions for line inside this function
-    const lineStartX = data.x + data.w;
-    const lineStartY = data.y + data.h/2;
-    const { lineEndX, lineEndY } = calculateLineEnd(data, lineStartX, lineStartY);
+    const lineStartX = group.data.x + group.data.w;
+    const lineStartY = group.data.y + group.data.h/2;
+    const { lineEndX, lineEndY } = calculateLineEnd(group.data, lineStartX, lineStartY);
 
     group.line = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
     group.arrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX, lineEndY-arrowHeight).fill('#000');
