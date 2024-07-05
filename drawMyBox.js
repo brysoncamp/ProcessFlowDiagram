@@ -1,3 +1,7 @@
+const arrowWidth = 13;
+const arrowHeight = 5;
+const defaultLength = 100;
+
 // Assume we have an initial JSON object with group positions and IDs
 var groupsData = {
     "groups": [
@@ -18,31 +22,11 @@ function createDraggableGroup(data, fillColor) {
     var text = group.text('Step').attr({stroke: 'black' }).move(data.x + 25, data.y + 20);
    
     // Draw an arrow from the rectangle
-    const defaultLength = 100;
     const lineStartX = data.x + data.w;
     const lineStartY = data.y + data.h/2;
     const { lineEndX, lineEndY } = calculateLineEnd(data, lineStartX, lineStartY, defaultLength);
-    // let lineEndX;
-    // let lineEndY;
-    // // Check if destGroup is null or not
-    // if (data.destGroup === null) {
-    //     lineEndX = lineStartX + defaultLength; // Use defaultLength if destGroup is null
-    //     lineEndY = lineStartY;
-    // } else {
-    //     // Find the destination group's data using its id
-    //     const destGroupData = groupsData.groups.find(g => g.id === data.destGroup);
-    //     if (destGroupData) {
-    //         lineEndX = destGroupData.x; // Use the x attribute of the destination group
-    //         lineEndY = destGroupData.y + destGroupData.h/2;
-    //     } else {
-    //         lineEndX = lineStartX + defaultLength; // Fallback to defaultLength if destGroupData is not found
-    //         lineEndY = lineStartY;
-    //     }
-    // }
 
     var line = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
-    const arrowWidth = 13;
-    const arrowHeight = 5;
     var arrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX, lineEndY-arrowHeight).fill('#000');
    
     // Add event listeners for dragging
