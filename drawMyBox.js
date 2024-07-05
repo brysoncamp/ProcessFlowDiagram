@@ -3,7 +3,7 @@ const arrowHeight = 5;
 const defaultLength = 100;
 
 // Assume we have an initial JSON object with group positions and IDs
-var groupsData = {
+var groupsData = {  // This will be retrieved by a call to the back-end
     "groups": [
       { "id": "group1", "name": "Thickener 1", "x": 50, "y": 75, "w": 100, "h": 50, "destGroup": "group2" },
       { "id": "group2", "name": "Thickener 2", "x": 350, "y": 75, "w": 100, "h": 50, "destGroup": null }
@@ -92,20 +92,29 @@ function deleteLineAndArrow(group) {
 
 function drawLineAndArrow(group) {
     // Calculate start positions for line inside this function
-    const lineStartX = group.data.x + group.data.w;
-    const lineStartY = group.data.y + group.data.h/2;
-    const { lineEndX, lineEndY } = calculateLineEnd(group.data, lineStartX, lineStartY);
+    const { lineStartX, lineStartY, lineEndX, lineEndY } = calculateLineEnds(group.data);
 
-    // Create a new line and arrow using the SVG.js methods
-    var newLine = group.line(lineStartX, lineStartY, lineEndX, lineEndY).stroke({ color: '#000', width: 2 });
-    var newArrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`).move(lineEndX-arrowWidth, lineEndY-arrowHeight).fill('#000');
+    // Calculate midpoint for orthogonal arrangement
+    const midPointX = (lineStartX + lineEndX) / 2; // or some other logic to determine the bend point
+    const midPointY = (lineStartY + lineEndY) / 2; // or some other logic to determine the bend point
+
+    // Create a new polyline with two segments using the SVG.js methods
+    var newLine = group.polyline([[lineStartX, lineStartY], [midPointX, lineStartY], [midPointX, midPointY], [midPointX, lineEndY], [lineEndX, lineEndY]])
+        .fill('none')
+        .stroke({ color: '#000', width: 2 });
+
+    var newArrow = group.polygon(`0,0 0,${arrowHeight} ${arrowWidth},0 0,-${arrowHeight}`)
+        .move(lineEndX - arrowWidth, lineEndY - arrowHeight)
+        .fill('#000');
 
     // If you need to reference these later, you can assign them to properties on the group
     group.referencedLine = newLine;
     group.referencedArrow = newArrow;
 }
 
-function calculateLineEnd(data, lineStartX, lineStartY) {
+function calculateLineEnds(data) {
+    let lineStartX = data.x + data.w;  // assumes connecting to right-hand side
+    let lineStartY = data.y + data.h / 2;  // assumes connecting a mid-point
     let lineEndX;
     let lineEndY;
 
@@ -115,15 +124,15 @@ function calculateLineEnd(data, lineStartX, lineStartY) {
     } else {
         const destGroupData = groupsData.groups.find(g => g.id === data.destGroup);
         if (destGroupData) {
-            lineEndX = destGroupData.x;
-            lineEndY = destGroupData.y + destGroupData.h/2;
+            lineEndX = destGroupData.x;  // assumes connecting to left-hand side
+            lineEndY = destGroupData.y + destGroupData.h/2; // assumes connecting to mid-point
         } else {
-            lineEndX = lineStartX + defaultLength;
-            lineEndY = lineStartY;
+            lineEndX = lineStartX + defaultLength;  // assumes no terminal connection
+            lineEndY = lineStartY;  // assumes horizontal line.
         }
     }
 
-    return { lineEndX, lineEndY };
+    return { lineStartX, lineStartY, lineEndX, lineEndY };
 }
 
   // Function to save the updated positions to a file
