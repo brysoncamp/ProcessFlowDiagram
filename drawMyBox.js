@@ -33,11 +33,13 @@ function createDraggableGroup(data, fillColor) {
 
 // Function to start dragging
 function startDrag(event, group) {
+    
+    deleteLineAndArrow(group)
+
     // Get the initial mouse position
     var startX = event.clientX;
     var startY = event.clientY;
-    group.referencedLine.remove();
-    group.referencedArrow.remove();
+    
     // Get the initial position of the group
     var groupX = group.x();
     var groupY = group.y();
@@ -76,7 +78,11 @@ function startDrag(event, group) {
     window.addEventListener('mouseup', endDrag);
 }
 
-// Adjusted drawLineAndArrow function
+function deleteLineAndArrow(group) {
+    group.referencedLine.remove();
+    group.referencedArrow.remove();
+}
+
 function drawLineAndArrow(group) {
     // Calculate start positions for line inside this function
     const lineStartX = group.data.x + group.data.w;
