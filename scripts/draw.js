@@ -33,26 +33,62 @@ const rect = canvas.rect(rectWidth, rectHeight)
     .stroke({ color: '#ccc', width: 1 });
 
 let zoomLevel = 1;
-const zoomFactor = 0.025;
+const zoomFactor = 0.02;
 const minZoom = 0.1;
 const maxZoom = 4;
+
+
+let mouseX = 0;
+let mouseY = 0;
+
+const container = document.querySelector(".canvas-container");
+
+container.addEventListener('mousemove', (event) => {
+    const rect = canvasElement.getBoundingClientRect();
+    mouseX = event.clientX - rect.left;
+    mouseY = event.clientY - rect.top;
+});
+
+
+
 
 function zoom(delta) {
     zoomLevel = Math.max(minZoom, Math.min(maxZoom, zoomLevel + delta));
 
-    // Calculate new viewBox dimensions
-    const viewBoxWidth = canvasWidth / zoomLevel;
-    const viewBoxHeight = canvasHeight / zoomLevel;
+    const newCanvasWidth = canvasWidth * zoomLevel;
+    const newCanvasHeight = canvasHeight * zoomLevel;
 
-    // Center the viewBox around the center of the canvas
-    const viewBoxX = (canvasWidth - viewBoxWidth) / 2;
-    const viewBoxY = (canvasHeight - viewBoxHeight) / 2;
+    const newRectWidth = rectWidth * zoomLevel;
+    const newRectHeight = rectHeight * zoomLevel;
 
-    canvas.viewbox(viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight);
+    const newRectX = (newCanvasWidth - newRectWidth)/2;
+    const newRectY = (newCanvasHeight - newRectHeight)/2;
+
+    rect.size(newRectWidth, newRectHeight);
+    rect.move(newRectX, newRectY);
+    canvas.size(newCanvasWidth, newCanvasHeight);
+
+    const svgElement = canvasElement.querySelector('svg'); 
+    const svgBounding = svgElement.getBoundingClientRect();
+
+    if (svgElement.clientHeight > canvasHeight) {
+        const totalScrollableWidth = container.scrollWidth - container.clientWidth;
+        const totalScrollableHeight = container.scrollHeight - container.clientHeight;
+
+        container.scrollLeft = totalScrollableWidth * ((mouseX / container.scrollWidth ));
+        container.scrollTop = totalScrollableHeight * ((mouseY / container.scrollHeight));
+    } else {
+        const translateX = canvasWidth/2 - svgBounding.width/2;
+        const translateY = canvasHeight/2 - svgBounding.height/2;
+        svgElement.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    }
 }
 
 // Add event listeners for mouse wheel zoom
-canvasElement.addEventListener('wheel', (event) => {
+container.addEventListener('wheel', (event) => {
     event.preventDefault();
+    const rect = canvasElement.getBoundingClientRect();
+    mouseX = event.clientX - rect.left;
+    mouseY = event.clientY - rect.top;
     zoom(event.deltaY < 0 ? zoomFactor : -zoomFactor);
 });

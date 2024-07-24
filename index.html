@@ -268,9 +268,18 @@
         <img src="assets/vectors/search.svg" class="search-icon" draggable="false"></img>
       </div>
     </div>
-    <div id="canvas" class="canvas"></div>
+    <div class="canvas-container">
+      <div id="canvas" class="canvas"></div>
+    </div>
   </main>
-  <div class="bottombar"></div>
+  <div class="bottombar">
+    <div class="number-input">
+      <input type="text" value="100%">
+    </div>
+    <div class="fit-button">
+      <img class="fit-image" src="assets/vectors/fit.svg" draggable="false" />
+    </div>
+  </div>
   <script src="scripts/svg.min.js"></script>
   <script src="scripts/script.js"></script>
   <script src="scripts/draw.js"></script>
