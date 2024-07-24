@@ -171,6 +171,7 @@ main {
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     justify-content: end;
+    z-index: 10;
 }
 
 .highlight-visible {

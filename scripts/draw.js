@@ -4,7 +4,6 @@ const canvasElement = document.getElementById('canvas');
 const canvasWidth = canvasElement.clientWidth;
 const canvasHeight = canvasElement.clientHeight;
 
-
 const marginFactor = 0.1; // 10% margin
 
 // Calculate the maximum dimensions for the rectangle
@@ -84,11 +83,16 @@ function zoom(delta) {
     }
 }
 
+
 // Add event listeners for mouse wheel zoom
 container.addEventListener('wheel', (event) => {
     event.preventDefault();
     const rect = canvasElement.getBoundingClientRect();
     mouseX = event.clientX - rect.left;
     mouseY = event.clientY - rect.top;
+
+    console.log(event.deltaY);
+    if (Math.abs(event.deltaY) < 3) return;
+    
     zoom(event.deltaY < 0 ? zoomFactor : -zoomFactor);
 });
