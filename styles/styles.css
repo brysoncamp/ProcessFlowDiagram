@@ -14,13 +14,13 @@ body {
 }
 
 .topbar {
-    height: 3rem;
+    min-height: 3rem;
     width: 100vw;
     border-bottom: 1px solid var(--border-color);
 }
 
 .bottombar {
-    height: 2rem;
+    min-height: 2rem;
     width: 100vw;
     border-top: 1px solid var(--border-color);
 }
@@ -28,6 +28,7 @@ body {
 main {
     flex: 1;
     display: flex;
+    overflow: hidden;
 }
 
 .sidebar {
@@ -246,3 +247,10 @@ main {
 .cross-hidden {
     display: none;
 }
+
+.canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+
