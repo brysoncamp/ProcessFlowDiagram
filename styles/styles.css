@@ -79,20 +79,29 @@ main {
 }
 
 .symbol {
-    background-color: var(--border-color);
     width: 3.5rem;
     height: 3.5rem;
     border-radius: 0.5rem;
     cursor: pointer;
-    transition: background-color 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .symbol img {
     width: 3.5rem;
     height: 3.5rem;
+    transition: background-color 0.25s ease, width 0.25s ease, height 0.25s ease;
+    background-color: var(--border-color);
+    border-radius: 0.5rem;
 }
 
-.symbol:hover {
+.symbol-down img {
+    width: 3rem;
+    height: 3rem;
+}
+
+.symbol:hover img {
     background-color: #dedede;
 }
 
@@ -103,6 +112,7 @@ main {
     overflow: hidden;
     height: auto;
     max-height: 100vh;
+    align-items: center;
     transition: max-height 0.6s ease;
     margin-bottom: 1rem;
 }
@@ -322,4 +332,20 @@ main {
 
 .number-input input:focus {
     outline: none;
+}
+
+.symbol-dragging {
+    position: absolute;
+    z-index: 10000;
+
+}
+
+.symbol-dragging img {
+    width: 5rem;
+    opacity: 0.5;
+    cursor: move;
+}
+
+.symbol-dragging-hidden img {
+    opacity: 0;
 }

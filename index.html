@@ -11,7 +11,7 @@
 <body>
   <div class="topbar"></div>
   <main>
-    <div class="sidebar">
+    <div id="sidebar" class="sidebar" draggable="false">
       <div id="symbolHighlight" class="symbol-highlight">
         <div class="symbol-highlight-triangle"></div>
         <div id="symbolHighlightImage" class="symbol-highlight-image">
@@ -19,8 +19,11 @@
         </div>
         <div id="symbolHighlightName" class="symbol-highlight-name">Square</div>
       </div>
+      <div style="left: -10rem; top: -10rem;" id="symbolDragging" class="symbol-dragging">
+        <img src="assets/vectors/square.svg" draggable="false"/>
+      </div>
       <div style="height: 0.75rem"></div>
-      <div class="symbols">
+      <div id="symbolsContainer" class="symbols">
         <div class="symbol-category">
           <div class="symbol-category-name">
             <div>Process Units</div>
@@ -268,7 +271,7 @@
         <img src="assets/vectors/search.svg" class="search-icon" draggable="false"></img>
       </div>
     </div>
-    <div class="canvas-container">
+    <div id="canvasContainer" class="canvas-container">
       <div id="canvas" class="canvas"></div>
     </div>
   </main>
@@ -281,7 +284,8 @@
     </div>
   </div>
   <script src="scripts/svg.min.js"></script>
-  <script src="scripts/script.js"></script>
-  <script src="scripts/draw.js"></script>
+  <!--<script type="module" src="scripts/script.mjs"></script>-->
+  <!--<script type="module" src="scripts/draw.mjs"></script>-->
+  <script type="module" src="scripts/EventHandler.mjs"></script>
 </body>
 </html>
