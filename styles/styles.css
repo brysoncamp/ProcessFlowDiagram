@@ -349,3 +349,11 @@ main {
 .symbol-dragging-hidden img {
     opacity: 0;
 }
+
+.unit {
+    cursor: pointer;
+}
+
+.unit-move {
+    cursor: move;
+}

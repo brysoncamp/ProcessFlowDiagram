@@ -1,3 +1,5 @@
+import Unit from "./Unit.mjs"
+
 class Canvas {
     constructor() {
         this.container = document.querySelector(".canvas-container");
@@ -7,6 +9,10 @@ class Canvas {
         this.updateCanvasDimensions();
         this.setupPage();
         this.setupZoomSettings();
+        this.units = [];
+        this.isDraggingUnit = false;
+        this.addUnit();
+        this.moveUnits = [];
     }
 
     updateCanvasDimensions() {
@@ -54,11 +60,6 @@ class Canvas {
             .move(rectX, rectY)
             .stroke({ color: '#ccc', width: 1 });
 
-        this.box = this.group.rect(50, 50)
-            .attr({ fill: 'white' })
-            .move(this.canvasWidth/16*6, 400)
-            .stroke({ color: 'black', width: 1 });
-
         this.groupBbox = this.group.bbox();
     }
 
@@ -67,6 +68,17 @@ class Canvas {
         this.zoomFactor = 0.02;
         this.minZoom = 0.1;
         this.maxZoom = 4;
+    }
+
+
+    addUnit() {
+        //console.log("add unit");
+        let x = 150;
+        let y = 150;
+        const pathData = "M40.5,5.5H7.5a2,2,0,0,0-2,2v33a2,2,0,0,0,2,2h33a2,2,0,0,0,2-2V7.5A2,2,0,0,0,40.5,5.5Z";
+        const unit = new Unit(this.group, x, y, pathData);
+        this.units.push(unit);
+        return unit;
     }
 
     handleResize(event) {
@@ -101,20 +113,45 @@ class Canvas {
             svgElement.style.transform = `translate(${translateX}px, ${translateY}px)`;
         }
     }
+
+    handleUnitMove(event) {
+        requestAnimationFrame(() => {
+            this.updateMousePosition(event);
+            const moveX = (this.mouseX - this.startX)/this.zoomLevel;
+            const moveY = (this.mouseY - this.startY)/this.zoomLevel;
+            for (const unit of this.moveUnits) {
+                unit.movePositionBy(moveX, moveY);
+            }
+        });
+    }
     
-    
-    
-    
-    
-    
-    
+    handleUnitDown(event) {
+        this.updateMousePosition(event);
+        this.startX = this.mouseX;
+        this.startY = this.mouseY; 
+        this.isDraggingUnit = true;
         
+        const unitId = event.target.getAttribute("id").split("-")[1];
+        const unit = this.units[unitId];
+        unit.updatePosition();
+        unit.setMoveCursor();
+        this.moveUnits.push(unit);
+    }
 
     handleWheel(event) {
         event.preventDefault();
         this.updateMousePosition(event);
         if (Math.abs(event.deltaY) < 3) return;
         this.zoom(event.deltaY < 0 ? this.zoomFactor : -this.zoomFactor);
+    }
+
+    resetMoveSymbol() {
+        for (const unit of this.moveUnits) {
+            unit.updatePosition();
+            unit.unsetMoveCursor();
+        }
+        this.moveUnits = [];
+        this.isDraggingUnit = false;
     }
 }
 

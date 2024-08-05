@@ -132,7 +132,7 @@ class Sidebar {
         if (mousedownSymbolImage) this.symbolDragging.insertAdjacentHTML("beforeend", mousedownSymbolImage.outerHTML);
     }
 
-    handleSymbolClick(event) {
+    handleSymbolDown(event) {
         const symbol = event.target.closest(".symbol");
         if (symbol) {
             this.startDraggingSymbol(symbol);

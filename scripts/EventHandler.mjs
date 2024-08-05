@@ -35,17 +35,27 @@ class EventHandler {
     handleMousedown(event) {
         const closestSymbol = event.target.closest(".symbol");
         if (closestSymbol) {
-            this.sidebar.handleSymbolClick(event);
+            this.sidebar.handleSymbolDown(event);
+        }
+
+        const closestUnit = event.target.closest(".unit");
+        if (closestUnit) {
+            this.canvas.handleUnitDown(event);
         }
     }
 
     handleMouseup(event) {
         this.sidebar.resetDraggingSymbol(event);
+        this.canvas.resetMoveSymbol();
     }
 
     handleMousemove(event) {
         if (this.sidebar.isDraggingSymbol) {
             this.sidebar.handleDraggingMove(event);
+        }
+
+        if (this.canvas.isDraggingUnit) {
+            this.canvas.handleUnitMove(event);
         }
     }
 
