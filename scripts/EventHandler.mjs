@@ -59,6 +59,31 @@ class EventHandler {
         }
     }
 
+    handleMouseover(event) {
+        if (this.sidebar.isDraggingSymbol && !this.canvas.isDraggingUnit) {
+            const isCanvasElement = event.target.closest("#canvasContainer");
+            if (isCanvasElement) {
+                console.log("create unit");
+                this.canvas.handleUnitDrop(event);
+            }
+        } else if (this.sidebar.isDraggingSymbol && this.canvas.isDraggingUnit) {
+            const isCanvasElement = event.target.closest("#canvasContainer");
+            if (!isCanvasElement) {
+                console.log("delete unit");
+                this.canvas.deleteRecentUnit();
+            }
+        } else if (this.canvas.isDraggingUnit) {
+            const isCanvasElement = event.target.closest("#canvasContainer");
+            if (!isCanvasElement) {
+                console.log("stop moving unit");
+                this.canvas.deleteMovingUnit();
+                //this.canvas.resetMoveSymbol();
+            } else if (this.canvas.isDeletingUnit) {
+                this.canvas.dropDeletingUnit();
+            }
+        }
+    }
+
     setupListeners() {
         window.addEventListener("resize", this.handleResize.bind(this));
 
@@ -66,6 +91,7 @@ class EventHandler {
         document.addEventListener("mouseup", this.handleMouseup.bind(this));
         document.addEventListener("mousedown", this.handleMousedown.bind(this));
         document.addEventListener("mousemove", this.handleMousemove.bind(this));
+        document.addEventListener("mouseover", this.handleMouseover.bind(this));
         document.addEventListener("mouseover", this.sidebar.handleMouseoverSymbol.bind(this.sidebar));
 
         this.canvasContainer.addEventListener("mousemove", this.canvas.updateMousePosition.bind(this.canvas));

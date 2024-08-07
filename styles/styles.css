@@ -17,6 +17,7 @@ body {
     min-height: 3rem;
     width: 100vw;
     border-bottom: 1px solid var(--border-color);
+    user-select: none;
 }
 
 main {
@@ -32,6 +33,7 @@ main {
     display: flex;
     flex-direction: column;
     position: relative;
+    user-select: none;
 }
 
 
@@ -179,13 +181,15 @@ main {
     align-items: center;
     right: -8rem;
     opacity: 0;
-    transition: opacity 0.3s ease-in-out;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
     justify-content: end;
     z-index: 10;
 }
 
 .highlight-visible {
     opacity: 1;
+    visibility: visible;
 }
 
 .symbol-highlight-triangle {
@@ -227,6 +231,7 @@ main {
     width: 16rem;
     border: 1px solid #ccc;
     border-radius: 0.5rem;
+    user-select: none;
 }
 
 .search {
@@ -241,6 +246,7 @@ main {
 
 .search:focus {
     outline: none;
+    user-select: auto;
 }
 
 .search-icon {
@@ -357,3 +363,4 @@ main {
 .unit-move {
     cursor: move;
 }
+

@@ -46,6 +46,9 @@ var iconDesigns = {
 
 var iconDesignsKeys = Object.keys(iconDesigns);
 
+
+
+W
 // Assume we have an initial JSON object with group positions and IDs
 var plantData = {  // This will be retrieved by a call to the back-end
     unit_operations: [

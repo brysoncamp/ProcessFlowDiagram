@@ -4,14 +4,15 @@ class Canvas {
     constructor() {
         this.container = document.querySelector(".canvas-container");
         this.canvasElement = document.getElementById("canvas");
-        this.canvas = SVG().addTo("#canvas").size("100%", "100%");
+        this.canvas = SVG().addTo("#canvas").size("100%", "100%").attr("overflow", "visible");
+
         this.group = this.canvas.group();
         this.updateCanvasDimensions();
         this.setupPage();
         this.setupZoomSettings();
         this.units = [];
         this.isDraggingUnit = false;
-        this.addUnit();
+        this.isDeletingUnit = false;
         this.moveUnits = [];
     }
 
@@ -66,17 +67,33 @@ class Canvas {
     setupZoomSettings() {
         this.zoomLevel = 1;
         this.zoomFactor = 0.02;
-        this.minZoom = 0.1;
+        this.minZoom = 0.25; /* 0.1 */
         this.maxZoom = 4;
     }
 
+    deleteRecentUnit() {
+        const unit = this.units[this.units.length - 1];
+        unit.delete();
+        this.isDraggingUnit = false;
+    }
 
-    addUnit() {
-        //console.log("add unit");
-        let x = 150;
-        let y = 150;
-        const pathData = "M40.5,5.5H7.5a2,2,0,0,0-2,2v33a2,2,0,0,0,2,2h33a2,2,0,0,0,2-2V7.5A2,2,0,0,0,40.5,5.5Z";
-        const unit = new Unit(this.group, x, y, pathData);
+    deleteMovingUnit() {
+        for (const unit of this.moveUnits) {
+            unit.hide();
+        }
+        this.isDeletingUnit = true;
+    }
+
+    dropDeletingUnit() {
+        for (const unit of this.moveUnits) {
+            unit.show();
+        }
+        this.isDeletingUnit = false;
+    }
+
+    addUnit(x, y) {
+        //console.log("add unit", this.zoomLevel);
+        const unit = new Unit(this.group, x, y, "square", this.zoomLevel);
         this.units.push(unit);
         return unit;
     }
@@ -91,13 +108,67 @@ class Canvas {
         this.mouseY = event.clientY - rect.top;
     }
 
+    handleUnitDrop(event) {
+        this.updateMousePosition(event);
+        this.addUnit(this.mouseX, this.mouseY);
+        this.startX = this.mouseX;
+        this.startY = this.mouseY; 
+        this.isDraggingUnit = true;
+
+        const unit = this.units[this.units.length - 1];
+        unit.updatePosition();
+        unit.setMoveCursor();
+        unit.bringToFront();
+        this.moveUnits.push(unit);
+
+        /* 
+        this.startX = this.mouseX;
+        this.startY = this.mouseY; 
+        this.isDraggingUnit = true;
+        
+        const unitId = event.target.getAttribute("id").split("-")[1];
+        const unit = this.units[unitId];
+        unit.updatePosition();
+        unit.setMoveCursor();
+        this.moveUnits.push(unit);
+
+        */
+    }
+
     zoom(delta) {
+
+        const currentGroupBbox = this.group.bbox();
+        const baseCanvasWidth = currentGroupBbox.width / this.zoomLevel;
+        const baseCanvasHeight = currentGroupBbox.height / this.zoomLevel;
+
         this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel + delta));
-        const newCanvasWidth = this.groupBbox.width * this.zoomLevel;
-        const newCanvasHeight = this.groupBbox.height * this.zoomLevel;
+
+        const newCanvasWidth = baseCanvasWidth * this.zoomLevel; // = this.groupBbox.width * this.zoomLevel;
+        const newCanvasHeight = baseCanvasHeight * this.zoomLevel; // = this.groupBbox.height * this.zoomLevel;
         this.group.size(newCanvasWidth, newCanvasHeight);
         this.group.move(0, 0);
         this.canvas.size(newCanvasWidth, newCanvasHeight);
+
+        const nonScalingElements = this.group.find(".non-scaling");
+
+        // Applying inverse scale to these elements
+        nonScalingElements.forEach((element) => {
+            const siteSize = element.data("siteSize");
+            const siteScale = element.data("scale");
+            const newSiteSize = siteSize / this.zoomLevel;
+
+            const widthPercent = element.data("widthPercent");
+            const heightPercent = element.data("heightPercent");
+
+            const unitElement = element.parent().findOne(".unit-path");
+            const unitBbox = unitElement.bbox();
+
+            const newX = unitBbox.x * siteScale + widthPercent * unitBbox.width * siteScale - newSiteSize/2;
+            const newY =  unitBbox.y * siteScale + heightPercent * unitBbox.height * siteScale - newSiteSize/2;
+    
+            element.size(newSiteSize, newSiteSize);
+            element.move(newX, newY);
+        });
 
         const svgElement = this.canvasElement.querySelector("svg"); 
         const svgBounding = svgElement.getBoundingClientRect();
@@ -111,6 +182,7 @@ class Canvas {
             const translateX = this.canvasWidth / 2 - svgBounding.width / 2;
             const translateY = this.canvasHeight / 2 - svgBounding.height / 2;
             svgElement.style.transform = `translate(${translateX}px, ${translateY}px)`;
+            
         }
     }
 
@@ -119,6 +191,7 @@ class Canvas {
             this.updateMousePosition(event);
             const moveX = (this.mouseX - this.startX)/this.zoomLevel;
             const moveY = (this.mouseY - this.startY)/this.zoomLevel;
+            console.log(moveX, moveY);
             for (const unit of this.moveUnits) {
                 unit.movePositionBy(moveX, moveY);
             }
@@ -134,6 +207,7 @@ class Canvas {
         const unitId = event.target.getAttribute("id").split("-")[1];
         const unit = this.units[unitId];
         unit.updatePosition();
+        unit.bringToFront();
         unit.setMoveCursor();
         this.moveUnits.push(unit);
     }
@@ -152,6 +226,16 @@ class Canvas {
         }
         this.moveUnits = [];
         this.isDraggingUnit = false;
+        
+        // deleting
+
+        if (this.isDeletingUnit) {
+            for (const unit of this.moveUnits) {
+                unit.delete()
+            }
+            this.isDeletingUnit = false;
+        }
+        
     }
 }
 
