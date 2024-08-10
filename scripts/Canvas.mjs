@@ -67,7 +67,7 @@ class Canvas {
     setupZoomSettings() {
         this.zoomLevel = 1;
         this.zoomFactor = 0.02;
-        this.minZoom = 0.25; /* 0.1 */
+        this.minZoom = 0.9; /* 0.1 */
         this.maxZoom = 4;
     }
 
@@ -137,6 +137,13 @@ class Canvas {
 
     zoom(delta) {
 
+        const rect = this.group.rect(1, 1).attr({ x: this.mouseX, y: this.mouseY });
+
+        console.log("-----------");
+        const rectBbox = rect.rbox();
+        console.log("before", rectBbox.x, rectBbox.y);
+
+
         const currentGroupBbox = this.group.bbox();
         const baseCanvasWidth = currentGroupBbox.width / this.zoomLevel;
         const baseCanvasHeight = currentGroupBbox.height / this.zoomLevel;
@@ -148,6 +155,10 @@ class Canvas {
         this.group.size(newCanvasWidth, newCanvasHeight);
         this.group.move(0, 0);
         this.canvas.size(newCanvasWidth, newCanvasHeight);
+
+        const rectBbox2 = rect.rbox();
+        console.log("after", rectBbox2.x, rectBbox2.y);
+        rect.remove();
 
         const nonScalingElements = this.group.find(".non-scaling");
 
@@ -174,14 +185,13 @@ class Canvas {
         const svgBounding = svgElement.getBoundingClientRect();
     
         if (svgElement.clientHeight > this.canvasHeight) {
-            const totalScrollableWidth = this.container.scrollWidth - this.container.clientWidth;
-            const totalScrollableHeight = this.container.scrollHeight - this.container.clientHeight;
-            this.container.scrollLeft = totalScrollableWidth * (this.mouseX / this.container.scrollWidth);
-            this.container.scrollTop = totalScrollableHeight * (this.mouseY / this.container.scrollHeight);
+            console.log(this.container.scrollLeft - rectBbox.x + rectBbox2.x);
+            this.container.scrollLeft = this.container.scrollLeft - rectBbox.x + rectBbox2.x;
+            this.container.scrollTop =this.container.scrollTop - rectBbox.y + rectBbox2.y;
         } else {
-            const translateX = this.canvasWidth / 2 - svgBounding.width / 2;
-            const translateY = this.canvasHeight / 2 - svgBounding.height / 2;
-            svgElement.style.transform = `translate(${translateX}px, ${translateY}px)`;
+            //const translateX = this.canvasWidth / 2 - svgBounding.width / 2;
+            //const translateY = this.canvasHeight / 2 - svgBounding.height / 2;
+            //svgElement.style.transform = `translate(${translateX}px, ${translateY}px)`;
             
         }
     }
@@ -215,7 +225,7 @@ class Canvas {
     handleWheel(event) {
         event.preventDefault();
         this.updateMousePosition(event);
-        if (Math.abs(event.deltaY) < 3) return;
+        if (Math.abs(event.deltaY) < 4) return;
         this.zoom(event.deltaY < 0 ? this.zoomFactor : -this.zoomFactor);
     }
 
@@ -227,15 +237,12 @@ class Canvas {
         this.moveUnits = [];
         this.isDraggingUnit = false;
         
-        // deleting
-
         if (this.isDeletingUnit) {
             for (const unit of this.moveUnits) {
                 unit.delete()
             }
             this.isDeletingUnit = false;
         }
-        
     }
 }
 
