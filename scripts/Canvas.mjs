@@ -14,6 +14,8 @@ class Canvas {
         this.isDraggingUnit = false;
         this.isDeletingUnit = false;
         this.moveUnits = [];
+        this.hoverUnit = null;
+        //this.hoverUnits = [];
     }
 
     updateCanvasDimensions() {
@@ -91,9 +93,8 @@ class Canvas {
         this.isDeletingUnit = false;
     }
 
-    addUnit(x, y) {
-        //console.log("add unit", this.zoomLevel);
-        const unit = new Unit(this.group, x, y, "square", this.zoomLevel);
+    addUnit(x, y, draggingSymbolName) {
+        const unit = new Unit(this.group, x, y, draggingSymbolName, this.zoomLevel);
         this.units.push(unit);
         return unit;
     }
@@ -108,9 +109,10 @@ class Canvas {
         this.mouseY = event.clientY - rect.top;
     }
 
-    handleUnitDrop(event) {
+    handleUnitDrop(event, draggingSymbolName) {
         this.updateMousePosition(event);
-        this.addUnit(this.mouseX, this.mouseY);
+        console.log("Unit drop", event.target);
+        this.addUnit(this.mouseX, this.mouseY, draggingSymbolName);
         this.startX = this.mouseX;
         this.startY = this.mouseY; 
         this.isDraggingUnit = true;
@@ -138,11 +140,7 @@ class Canvas {
     zoom(delta) {
 
         const rect = this.group.rect(1, 1).attr({ x: this.mouseX, y: this.mouseY });
-
-        console.log("-----------");
         const rectBbox = rect.rbox();
-        console.log("before", rectBbox.x, rectBbox.y);
-
 
         const currentGroupBbox = this.group.bbox();
         const baseCanvasWidth = currentGroupBbox.width / this.zoomLevel;
@@ -157,7 +155,6 @@ class Canvas {
         this.canvas.size(newCanvasWidth, newCanvasHeight);
 
         const rectBbox2 = rect.rbox();
-        console.log("after", rectBbox2.x, rectBbox2.y);
         rect.remove();
 
         const nonScalingElements = this.group.find(".non-scaling");
@@ -185,7 +182,7 @@ class Canvas {
         const svgBounding = svgElement.getBoundingClientRect();
     
         if (svgElement.clientHeight > this.canvasHeight) {
-            console.log(this.container.scrollLeft - rectBbox.x + rectBbox2.x);
+            //console.log(this.container.scrollLeft - rectBbox.x + rectBbox2.x);
             this.container.scrollLeft = this.container.scrollLeft - rectBbox.x + rectBbox2.x;
             this.container.scrollTop =this.container.scrollTop - rectBbox.y + rectBbox2.y;
         } else {
@@ -201,11 +198,20 @@ class Canvas {
             this.updateMousePosition(event);
             const moveX = (this.mouseX - this.startX)/this.zoomLevel;
             const moveY = (this.mouseY - this.startY)/this.zoomLevel;
-            console.log(moveX, moveY);
+            //console.log(moveX, moveY);
             for (const unit of this.moveUnits) {
                 unit.movePositionBy(moveX, moveY);
             }
         });
+    }
+
+    getId(element) {
+        return element.getAttribute("id").split("-")[1];
+    }
+
+    getUnit(element) {
+        const unitId = this.getId(element);
+        return this.units[unitId];
     }
     
     handleUnitDown(event) {
@@ -214,8 +220,7 @@ class Canvas {
         this.startY = this.mouseY; 
         this.isDraggingUnit = true;
         
-        const unitId = event.target.getAttribute("id").split("-")[1];
-        const unit = this.units[unitId];
+        const unit = this.getUnit(event.target);
         unit.updatePosition();
         unit.bringToFront();
         unit.setMoveCursor();
@@ -244,6 +249,67 @@ class Canvas {
             this.isDeletingUnit = false;
         }
     }
+
+    handleUnitHover(element) {
+        //console.log("handleUnitHover", element);
+
+        // instead of having a hover sites array, we have one unit
+        // if we are hovering over a new unit, we first unhover the last unit
+        
+        const unit = this.getUnit(element);
+        if (this.hoverUnit !== unit) {
+            this.handleNotUnitHover()
+        }
+
+        this.hoverUnit = unit;
+        this.hoverUnit.showSites();
+
+        /*if (!this.hoverUnits.includes(unit)) {
+            unit.showSites();
+            this.hoverUnits.push(unit);
+        }*/
+    }
+
+    handleNotUnitHover() {
+        //this.hoverUnits.forEach((hoverUnit) => hoverUnit.hideSites());
+        //this.hoverUnits = [];
+        if (this.hoverUnit) {
+            this.hoverUnit.hideSites();
+            this.hoverUnit = null;
+        }
+    }
+
+    handleSiteHover(siteElement, unitElement) {
+        //console.log("handle site hover", siteElement, unitElement);
+        const siteId = this.getId(siteElement);
+        //console.log("site id", siteId);
+        const unit = this.getUnit(unitElement);
+        unit.hoverSite(siteId);
+    }
+
+    handleNotSiteHover() {
+        //this.hoverUnits.forEach((hoverUnit) => hoverUnit.notHoverSites());
+        if (this.hoverUnit) this.hoverUnit.notHoverSites();
+    }
+    
+    handlePanStart(event) {
+        this.panStartX = event.clientX;
+        this.panStartY = event.clientY;
+        this.scrollLeft = this.container.scrollLeft;
+        this.scrollTop = this.container.scrollTop;
+    }
+
+    handlePanMove(event) {
+        const deltaX = event.clientX - this.panStartX;
+        const deltaY = event.clientY - this.panStartY;
+        //console.log("hanlde pan move", this.container);
+    
+        this.container.scrollLeft = this.scrollLeft - deltaX;
+        this.container.scrollTop = this.scrollTop - deltaY;
+    }
+    
+
+
 }
 
 export default Canvas; 

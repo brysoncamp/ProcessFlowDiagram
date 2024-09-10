@@ -1,5 +1,6 @@
 :root {
     --border-color: #eeeeee;
+    --unit-cursor: pointer;
 }
 
 html, body {
@@ -357,7 +358,7 @@ main {
 }
 
 .unit {
-    cursor: pointer;
+    cursor: var(--unit-cursor);
 }
 
 .unit-move {

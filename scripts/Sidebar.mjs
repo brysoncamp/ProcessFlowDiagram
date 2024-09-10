@@ -122,6 +122,7 @@ class Sidebar {
 
     startDraggingSymbol(symbol) {
         this.isDraggingSymbol = true;
+        this.draggingSymbolName = symbol.getAttribute('data-name').toLowerCase();;
         symbol.classList.add("symbol-down");
         this.symbolHighlight.classList.remove("highlight-visible");
     }
